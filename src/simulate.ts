@@ -123,15 +123,14 @@ export async function simulate(): Promise<void> {
     name: 'Comment "guide" to get the AI roadmap',
     matchType: 'contains',
     keywords: ['guide', 'roadmap', 'send me'],
-    publicReplyVariants: ['Sent you a DM ✅', 'Check your DMs ✅', 'In your inbox ✅'],
-    dmPromptText: "Hey! Tap the button below and I'll send you the roadmap.",
-    buttonLabel: 'Send me the roadmap',
-    gateMessage:
-      "One tap: follow the account, then press the button again and I'll send it right away.",
+    publicReplyVariants: ['DM Sent! 📩', 'DM check kro! 🎉', 'Thanks for comment, Check your DM! 📩'],
+    dmPromptText: "Hey! Tap the button below and I'll send you the resource.",
+    buttonLabel: 'Send Resource!',
+    gateMessage: 'Please follow. It just takes a click and I will share the resource with you.',
     resourcePayload: {
-      text: 'Here it is 👇',
+      text: 'Here is your Resource',
       url: 'https://example.com/ai-roadmap',
-      followUp: 'If anything is unclear, just reply here.',
+      buttonLabel: 'Resource',
     },
     requireFollow: true,
   });

@@ -48,6 +48,7 @@ import {
   renderPrompt,
   renderReprompt,
   renderResource,
+  renderResourceButton,
 } from './render.js';
 
 export interface EngineDeps {
@@ -498,6 +499,7 @@ export class Engine {
         // of webhook replay can send it twice. A deliberate re-delivery (a tap
         // after the cooldown) is keyed on the tap, so it is replay-safe too.
         const suffix = ctx.wasDelivered ? `:redeliver:${triggerId}` : '';
+        const resourceButton = renderResourceButton(rule.resourcePayload);
         await queue({
           conversationId: conversation.id,
           igsid: conversation.igsid,
@@ -507,6 +509,8 @@ export class Engine {
             op: 'dm',
             igsid: conversation.igsid,
             message: renderResource(rule.resourcePayload),
+            // The link rides on a tappable button when the rule has one.
+            ...(resourceButton ? { button: resourceButton } : {}),
           },
         });
         const followUp = renderFollowUp(rule.resourcePayload);

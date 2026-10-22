@@ -23,6 +23,8 @@ export interface MockCall {
   /** The postback payload of the button, when the message carried one. */
   buttonPayload: string | null;
   buttonLabel: string | null;
+  /** The link of a web_url button, when the message carried one. */
+  buttonUrl: string | null;
   /** True when the request used `recipient.comment_id` (a private reply). */
   privateReply: boolean;
   authorizationPresent: boolean;
@@ -192,6 +194,7 @@ export class MockMeta {
           text: typeof body.message === 'string' ? body.message : null,
           buttonPayload: null,
           buttonLabel: null,
+          buttonUrl: null,
           privateReply: false,
           authorizationPresent: typeof req.headers.authorization === 'string',
           at: new Date(),
@@ -216,7 +219,7 @@ export class MockMeta {
         const message = asObject(body.message);
         const commentId = typeof recipient.comment_id === 'string' ? recipient.comment_id : null;
         const recipientId = typeof recipient.id === 'string' ? recipient.id : null;
-        const { text, buttonPayload, buttonLabel } = readMessage(message);
+        const { text, buttonPayload, buttonLabel, buttonUrl } = readMessage(message);
 
         this.calls.push({
           endpoint: 'messages',
@@ -224,6 +227,7 @@ export class MockMeta {
           text,
           buttonPayload,
           buttonLabel,
+          buttonUrl,
           privateReply: commentId !== null,
           authorizationPresent: typeof req.headers.authorization === 'string',
           at: new Date(),
@@ -263,6 +267,7 @@ export class MockMeta {
           text: null,
           buttonPayload: null,
           buttonLabel: null,
+          buttonUrl: null,
           privateReply: false,
           authorizationPresent: typeof req.headers.authorization === 'string',
           at: new Date(),
@@ -323,9 +328,10 @@ function readMessage(message: Record<string, unknown>): {
   text: string | null;
   buttonPayload: string | null;
   buttonLabel: string | null;
+  buttonUrl: string | null;
 } {
   if (typeof message.text === 'string') {
-    return { text: message.text, buttonPayload: null, buttonLabel: null };
+    return { text: message.text, buttonPayload: null, buttonLabel: null, buttonUrl: null };
   }
   const attachment = asObject(message.attachment);
   const payload = asObject(attachment.payload);
@@ -336,5 +342,6 @@ function readMessage(message: Record<string, unknown>): {
     text,
     buttonPayload: typeof first.payload === 'string' ? first.payload : null,
     buttonLabel: typeof first.title === 'string' ? first.title : null,
+    buttonUrl: typeof first.url === 'string' ? first.url : null,
   };
 }

@@ -59,15 +59,20 @@ export function buildMessageObject(text: string, button?: ButtonSpec): Record<st
   // Button template.
   // https://developers.facebook.com/docs/messenger-platform/send-messages/template/button
   // `text` max 640 chars, 1-3 buttons. Postback buttons send the payload back
-  // to our webhook as a `messaging_postbacks` notification.
+  // to our webhook as a `messaging_postbacks` notification; web_url buttons
+  // open the link in Instagram's in-app browser and never call us back.
+  // URL buttons render in the Instagram mobile app, not on desktop web.
+  const spec =
+    button.url !== undefined
+      ? { type: 'web_url', title: button.label, url: button.url }
+      : { type: 'postback', title: button.label, payload: button.payload };
+  if (spec.type === 'postback' && button.payload === undefined) {
+    throw new Error('ButtonSpec needs either a postback payload or a url');
+  }
   return {
     attachment: {
       type: 'template',
-      payload: {
-        template_type: 'button',
-        text,
-        buttons: [{ type: 'postback', title: button.label, payload: button.payload }],
-      },
+      payload: { template_type: 'button', text, buttons: [spec] },
     },
   };
 }

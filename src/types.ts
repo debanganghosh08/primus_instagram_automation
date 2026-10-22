@@ -19,6 +19,8 @@ export interface ResourcePayload {
   text: string;
   /** Optional link to the resource (Notion page, Drive file, landing page...). */
   url?: string;
+  /** Label on the link button. Defaults to "Resource". Keep under 20 chars. */
+  buttonLabel?: string;
   /** Optional second message sent right after the resource. */
   followUp?: string;
 }
@@ -184,8 +186,17 @@ export type OutboxRequest =
 
 export interface ButtonSpec {
   label: string;
-  /** Encoded `ACTION:ruleId:nonce`. */
-  payload: string;
+  /**
+   * Postback button: encoded `ACTION:ruleId:nonce`. A tap comes back to our
+   * webhook. Set this OR `url`, never both.
+   */
+  payload?: string;
+  /**
+   * Link button: a tap opens this URL in Instagram's in-app browser. Used for
+   * the resource itself, so the person taps through instead of copying a link.
+   * Renders in the Instagram mobile app; URL buttons are not shown on desktop.
+   */
+  url?: string;
 }
 
 /** Kinds that actually send a person a message (so they count against caps). */

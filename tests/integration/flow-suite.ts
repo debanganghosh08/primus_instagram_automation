@@ -82,10 +82,11 @@ export function runFlowSuite(ctx: SuiteContext): void {
       expect(h.mock.callsTo('user_profile')).toHaveLength(1);
       expect(h.mock.callsTo('user_profile')[0]?.target).toBe(FAN);
 
-      // The resource arrived, as a normal DM, with the link.
+      // The resource arrived, as a normal DM, with the link on a tappable button.
       const dms = h.mock.directMessages();
       expect(dms).toHaveLength(1);
-      expect(dms[0]?.text).toContain('https://example.com/guide');
+      expect(dms[0]?.buttonUrl).toBe('https://example.com/guide');
+      expect(dms[0]?.buttonLabel).toBe('Resource');
 
       // No gate message anywhere.
       const texts = h.mock.calls.map((c) => c.text ?? '').join('\n');
@@ -157,7 +158,7 @@ export function runFlowSuite(ctx: SuiteContext): void {
 
       dms = h.mock.directMessages();
       expect(dms).toHaveLength(3);
-      expect(dms[2]?.text).toContain('https://example.com/guide');
+      expect(dms[2]?.buttonUrl).toBe('https://example.com/guide');
 
       // Still exactly one private reply across the whole journey.
       expect(h.mock.privateReplies()).toHaveLength(1);
@@ -464,7 +465,7 @@ export function runFlowSuite(ctx: SuiteContext): void {
       await h.tapLastButton(FAN, 'mid_cons_2');
       await h.drain();
       expect((await h.repo.findConversation(FAN, 'guide'))?.state).toBe('DELIVERED');
-      expect(h.mock.directMessages()[1]?.text).toContain('https://example.com/guide');
+      expect(h.mock.directMessages()[1]?.buttonUrl).toBe('https://example.com/guide');
     });
 
     it('an expired 24h window is recorded and never retried (reported by Meta)', async () => {
@@ -529,7 +530,7 @@ export function runFlowSuite(ctx: SuiteContext): void {
       expect(h.mock.callsTo('user_profile')).toHaveLength(1);
       const dms = h.mock.directMessages();
       expect(dms).toHaveLength(1);
-      expect(dms[0]?.text).toContain('https://example.com/guide');
+      expect(dms[0]?.buttonUrl).toBe('https://example.com/guide');
       expect((await h.repo.findConversation(FAN, 'guide'))?.state).toBe('DELIVERED');
     });
 
@@ -580,7 +581,7 @@ export function runFlowSuite(ctx: SuiteContext): void {
 
       const dms = h.mock.directMessages();
       expect(dms).toHaveLength(2);
-      expect(dms[0]?.text).toContain('https://example.com/guide');
+      expect(dms[0]?.buttonUrl).toBe('https://example.com/guide');
       expect(dms[1]?.text).toBe('Reply here if anything breaks.');
     });
 

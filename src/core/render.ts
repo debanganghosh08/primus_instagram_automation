@@ -31,11 +31,21 @@ export function renderReprompt(rule: Rule): string {
   return clampText(`${rule.dmPromptText}\n\n(Tap the button once more and it'll come through.)`);
 }
 
-/** The resource itself: text, then the link on its own line. */
+/**
+ * The resource message. When the rule has a link, the link rides on a tappable
+ * button (see renderResourceButton) rather than sitting in the text, so the
+ * person taps once instead of copying a URL. With no link, the text is all
+ * there is, so any URL in it is left in place.
+ */
 export function renderResource(payload: ResourcePayload): string {
-  const parts = [payload.text.trim()].filter((p) => p !== '');
-  if (payload.url && payload.url.trim() !== '') parts.push(payload.url.trim());
-  return clampText(parts.join('\n\n'));
+  return clampText(payload.text.trim());
+}
+
+/** The button carrying the resource link, or null when the rule has no link. */
+export function renderResourceButton(payload: ResourcePayload): { label: string; url: string } | null {
+  const url = payload.url?.trim();
+  if (!url) return null;
+  return { label: clampText(payload.buttonLabel || 'Resource', 20), url };
 }
 
 export function renderFollowUp(payload: ResourcePayload): string | null {

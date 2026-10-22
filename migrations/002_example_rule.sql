@@ -17,14 +17,14 @@ insert into rules (
   array['guide', 'send', 'link'],
   true,
   array[
-    'Sent you a DM ✅',
-    'Check your DMs ✅',
-    'In your inbox ✅'
+    'DM Sent! 📩',
+    'DM check kro! 🎉',
+    'Thanks for comment, Check your DM! 📩'
   ],
-  'Hey! Tap the button below and I''ll send you the guide.',
-  'Send me the resource',
-  'One tap: follow the account, then press the button again and I''ll send it right away.',
-  '{"text": "Here it is 👇", "url": "https://example.com/replace-me", "followUp": "If anything is unclear, just reply here."}'::jsonb,
+  'Hey! Tap the button below and I''ll send you the resource.',
+  'Send Resource!',
+  'Please follow. It just takes a click and I will share the resource with you.',
+  '{"text": "Here is your Resource", "url": "https://example.com/replace-me", "buttonLabel": "Resource"}'::jsonb,
   true,
   0
 )
