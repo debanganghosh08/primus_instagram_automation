@@ -1,0 +1,38 @@
+# --- secrets -------------------------------------------------------
+# Never commit a real .env. `.env.example` is the template and is
+# deliberately NOT ignored.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+secrets/
+
+# --- dependencies and build output ---------------------------------
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+
+# --- test and tooling artefacts ------------------------------------
+coverage/
+.nyc_output/
+.vitest/
+*.log
+npm-debug.log*
+.npm/
+.eslintcache
+
+# --- local databases and dumps -------------------------------------
+pgdata/
+*.sql.gz
+*.dump
+
+# --- editors and OS --------------------------------------------------
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini

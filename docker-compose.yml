@@ -1,0 +1,56 @@
+# Local stack: the service plus its Postgres.
+#
+#   docker compose up -d db        # just the database (for `npm test` against real SQL)
+#   docker compose up --build      # the whole thing
+#   docker compose down            # stop
+#   docker compose down -v         # stop and delete the database volume
+#
+# The app container needs a .env file next to this one (copy .env.example).
+# DATABASE_URL is overridden below so the app finds the `db` service rather
+# than localhost.
+
+services:
+  db:
+    # Postgres 13 or newer is required (gen_random_uuid() in core).
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: comment_to_dm
+    ports:
+      # Exposed so `TEST_DATABASE_URL=postgres://postgres:postgres@localhost:5432/comment_to_dm`
+      # works from the host for the integration suite.
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d comment_to_dm']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    # PID 1 forwards SIGTERM, so the graceful shutdown path runs.
+    init: true
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: '3000'
+      HOST: 0.0.0.0
+      REPOSITORY: postgres
+      DATABASE_URL: postgres://postgres:postgres@db:5432/comment_to_dm
+      DATABASE_SSL: 'false'
+    ports:
+      - '3000:3000'
+
+volumes:
+  pgdata:

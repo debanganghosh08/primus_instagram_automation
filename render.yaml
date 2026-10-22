@@ -1,0 +1,84 @@
+# Render blueprint. Commit this, then in Render: New -> Blueprint -> pick the repo.
+#
+# Everything marked `sync: false` is a secret or an account-specific value:
+# Render will prompt you for it on first deploy and store it encrypted. None of
+# them are in this file, and none of them should ever be.
+#
+# The database lives in Supabase (per the project's target setup), so this
+# blueprint declares only the web service. If you would rather use Render's own
+# Postgres, uncomment the `databases:` block at the bottom and set
+# DATABASE_URL from it instead.
+
+services:
+  - type: web
+    name: comment-to-dm
+    runtime: node
+    plan: starter # the free plan sleeps, which drops webhooks; starter does not
+    region: oregon
+    branch: main
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    # Render polls this; it also checks the database connection.
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      # Render injects PORT; the service reads it.
+
+      - key: REPOSITORY
+        value: postgres
+      - key: DATABASE_URL
+        sync: false # Supabase -> Settings -> Database -> Connection string (URI)
+      - key: DATABASE_SSL
+        value: 'true' # Supabase requires TLS
+
+      - key: APP_SECRET
+        sync: false # Meta app -> App settings -> Basic -> App secret
+      - key: VERIFY_TOKEN
+        sync: false # the random string you type into Meta's webhook form
+      - key: IG_USER_ID
+        sync: false # your Instagram professional account id
+      - key: IG_ACCESS_TOKEN
+        sync: false # long-lived Instagram User access token (60 days)
+      - key: API_VERSION
+        value: v26.0
+      - key: GRAPH_BASE_URL
+        value: https://graph.instagram.com
+
+      - key: ADMIN_TOKEN
+        # Render generates a strong value and keeps it; read it from the
+        # dashboard to sign in at /admin.
+        generateValue: true
+
+      - key: LOG_LEVEL
+        value: info
+
+      # Deploy with DRY_RUN=true, confirm the flow on the dashboard, then flip
+      # it to false in Render's environment settings.
+      - key: DRY_RUN
+        value: 'true'
+
+      - key: RATE_LIMIT_PER_HOUR
+        value: '600'
+      - key: MAX_MESSAGES_PER_HOUR
+        value: '400'
+      - key: MAX_MESSAGES_PER_CONTACT_PER_DAY
+        value: '6'
+      - key: CONTACT_COOLDOWN_MINUTES
+        value: '10'
+
+# Uncomment to use Render Postgres instead of Supabase, and change the
+# DATABASE_URL entry above to:
+#   - key: DATABASE_URL
+#     fromDatabase:
+#       name: comment-to-dm-db
+#       property: connectionString
+#
+# databases:
+#   - name: comment-to-dm-db
+#     plan: basic-256mb
+#     region: oregon
+#     postgresMajorVersion: '16'
